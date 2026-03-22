@@ -1,0 +1,19 @@
+{
+  "SDXL": 1.5,
+  "SD1.5": 2.0,
+  "SD2.1": 1.5,
+  "Pony": 1.2,
+  "Illustrious": 1.2,
+  "NoobAI": 1.2,
+  "Anima": 1.0,
+  "Qwen": 1.0,
+  "ZImageTurbo": 1.0,
+  "ZImageBase": 1.2,
+  "Flux": 1.0,
+  "Flux.2 D": 1.0,
+  "Flux.2 Klein 9B": 1.0,
+  "Flux.2 Klein 9B-base": 1.0,
+  "Flux.2 Klein 4B": 1.0,
+  "Flux.2 Klein 4B-base": 1.0,
+  "default": 1.5
+}

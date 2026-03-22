@@ -1,0 +1,17 @@
+# Environments
+.env
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# DB
+lora_db.json
+*.pem
+
+# Logs & OS assets
+*.log
+.DS_Store
+
+*.code-workspace
