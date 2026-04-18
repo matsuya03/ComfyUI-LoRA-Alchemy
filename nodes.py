@@ -9,7 +9,8 @@ from server import PromptServer
 from aiohttp import web
 
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).parent))
 from lora_alchemy_cauldron.hash_utils import compute_lora_id_safe
 from lora_alchemy_cauldron.config import HASH_METHOD, HASH_CHUNK_SIZE_MB
 

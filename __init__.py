@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 
 from .nodes import LoRAAlchemyNode
-from lora_alchemy_cauldron.logger_setup import setup_logging
+from .lora_alchemy_cauldron.logger_setup import setup_logging
 
 # ログ設定
 setup_logging()
@@ -58,7 +58,7 @@ def start_background_services():
 def _run_watcher(watch_dir: str):
     """Watcher をスレッド内で実行"""
     try:
-        from lora_alchemy_cauldron.watcher import start_watcher
+        from .lora_alchemy_cauldron.watcher import start_watcher
         start_watcher(watch_dir)
     except Exception as e:
         logger.error(f"Watcher error: {e}", exc_info=True)
