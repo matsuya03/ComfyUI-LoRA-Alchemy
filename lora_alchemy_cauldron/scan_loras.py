@@ -6,10 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 import traceback
 import argparse # Moved from inside __main__ block to top
 
-# Add the parent directories to sys.path
-custom_nodes_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(custom_nodes_dir)
-comfy_dir = os.path.dirname(custom_nodes_dir)
+# Add the parent directory (ComfyUI-LoRA-Alchemy/) to sys.path
+custom_nodes_dir = os.path.dirname(os.path.abspath(__file__))  # lora_alchemy_cauldron/
+parent_dir = os.path.dirname(custom_nodes_dir)  # ComfyUI-LoRA-Alchemy/
+sys.path.insert(0, parent_dir)
+comfy_dir = os.path.dirname(os.path.dirname(parent_dir))
 
 from lora_alchemy_cauldron.worker import process_new_lora
 
