@@ -108,7 +108,7 @@ app.registerExtension({
                         // ★ 新機能：オンロード時の自動画像フェッチ（オートフェッチ）
                         // ローカルDBに画像URLがなく、CivitaiのIDがわかっている場合は自動で取得に行く
                         // =========================================================
-                        const toCivitaiRed = url => url ? url.replace(/https?:\/\/civitai\.com\//g, 'https://civitai.red/') : url;
+                        const toCivitaiRed = url => url ? url.replace(/https?:\/\/(image\.)?civitai\.com\//g, (_, sub) => `https://${sub || ''}civitai.red/`) : url;
 
                         if ((!data.reference_image_urls || data.reference_image_urls.length === 0) && data.civitai_version_id) {
                             try {

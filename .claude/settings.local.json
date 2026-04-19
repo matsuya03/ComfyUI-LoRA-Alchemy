@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command '$r = Invoke-WebRequest \"https://civitai.red/api/v1/model-versions/2848208\"; $json = $r.Content | ConvertFrom-Json; $json.images | Select-Object url, nsfw, nsfwLevel | Format-Table')",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

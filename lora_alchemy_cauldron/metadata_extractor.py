@@ -172,11 +172,14 @@ class MetadataExtractor:
                             if "images" in sm_data["civitai"] and isinstance(sm_data["civitai"]["images"], list):
                                 image_arrays.append(sm_data["civitai"]["images"])
                                 
-                        if combined_metadata["civitai_version_id"] is None and "id" in sm_data:
-                             try:
-                                combined_metadata["civitai_version_id"] = int(sm_data["id"])
-                             except (ValueError, TypeError):
-                                pass
+                        if combined_metadata["civitai_version_id"] is None:
+                             for id_key in ["id", "VersionId", "versionId", "version_id"]:
+                                 if id_key in sm_data:
+                                     try:
+                                         combined_metadata["civitai_version_id"] = int(sm_data[id_key])
+                                         break
+                                     except (ValueError, TypeError):
+                                         pass
                                 
                         for img_list in image_arrays:
                             for img in img_list:
@@ -226,6 +229,13 @@ class MetadataExtractor:
                     desc = hf_meta.get("description", "")
                     combined_metadata["description"] = desc[:2000] + ("..." if len(desc) > 2000 else "")
 
+        # Civitai APIから画像URL補完
+        # reference_image_urls が空で civitai_version_id がある場合に自動補完
+        if not combined_metadata["reference_image_urls"] and combined_metadata["civitai_version_id"]:
+            urls = self._fetch_civitai_images(combined_metadata["civitai_version_id"])
+            if urls:
+                combined_metadata["reference_image_urls"] = urls
+
         combined_metadata["tags"] = list(set([t for t in combined_metadata["tags"] if t]))
         combined_metadata["trigger_words"] = list(set([t for t in combined_metadata["trigger_words"] if t]))
 
@@ -233,3 +243,35 @@ class MetadataExtractor:
             combined_metadata["base_model"] = "SDXL"
 
         return combined_metadata
+
+    def _fetch_civitai_images(self, version_id: int) -> list:
+        """Civitai APIから画像URL一覧を取得する。civitai.red を優先し、失敗時は civitai.com にフォールバック。"""
+        endpoints = [
+            f"https://civitai.red/api/v1/model-versions/{version_id}",
+            f"https://civitai.com/api/v1/model-versions/{version_id}",
+        ]
+        for url in endpoints:
+            for attempt in range(RETRY_MAX_ATTEMPTS):
+                try:
+                    response = requests.get(url, timeout=10.0)
+                    if response.status_code in (401, 403, 404):
+                        break  # このエンドポイントは諦めて次へ
+                    response.raise_for_status()
+                    data = response.json()
+                    image_urls = [img["url"] for img in data.get("images", []) if img.get("url")]
+                    if image_urls:
+                        logger.info(f"Fetched {len(image_urls)} images from {url}")
+                        return image_urls
+                    break  # 画像なし → 次エンドポイントへ
+                except requests.exceptions.RequestException as e:
+                    status_code = getattr(getattr(e, 'response', None), 'status_code', None)
+                    if status_code in RETRY_HTTP_STATUS_CODES or isinstance(e, requests.exceptions.ConnectionError):
+                        if attempt < RETRY_MAX_ATTEMPTS - 1:
+                            time.sleep(RETRY_INITIAL_DELAY * (RETRY_BACKOFF_FACTOR ** attempt))
+                        else:
+                            logger.warning(f"Failed to fetch Civitai images from {url} after {RETRY_MAX_ATTEMPTS} attempts")
+                            break
+                    else:
+                        logger.warning(f"Failed to fetch Civitai images from {url}: {e}")
+                        break
+        return []
